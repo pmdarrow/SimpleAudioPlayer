@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D001F38A2B8849ED00000785 /* AudioUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D001F3892B8849ED00000785 /* AudioUtils.swift */; };
+		D00D65EA2B85D02900A2C2FD /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00D65E92B85D02900A2C2FD /* PreferencesView.swift */; };
+		D0486A622B86D54B007E6CF7 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0486A612B86D54B007E6CF7 /* AudioPlayer.swift */; };
 		D0CA79402B85A8B0005C2897 /* SimpleAudioPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CA793F2B85A8B0005C2897 /* SimpleAudioPlayerApp.swift */; };
 		D0CA79422B85A8B0005C2897 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CA79412B85A8B0005C2897 /* ContentView.swift */; };
 		D0CA79442B85A8B1005C2897 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0CA79432B85A8B1005C2897 /* Assets.xcassets */; };
@@ -14,6 +17,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D001F3892B8849ED00000785 /* AudioUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioUtils.swift; sourceTree = "<group>"; };
+		D00D65E92B85D02900A2C2FD /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		D0486A612B86D54B007E6CF7 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		D0CA793C2B85A8B0005C2897 /* SimpleAudioPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleAudioPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0CA793F2B85A8B0005C2897 /* SimpleAudioPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAudioPlayerApp.swift; sourceTree = "<group>"; };
 		D0CA79412B85A8B0005C2897 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,7 +59,10 @@
 			isa = PBXGroup;
 			children = (
 				D0CA793F2B85A8B0005C2897 /* SimpleAudioPlayerApp.swift */,
+				D0486A612B86D54B007E6CF7 /* AudioPlayer.swift */,
+				D001F3892B8849ED00000785 /* AudioUtils.swift */,
 				D0CA79412B85A8B0005C2897 /* ContentView.swift */,
+				D00D65E92B85D02900A2C2FD /* PreferencesView.swift */,
 				D0CA79432B85A8B1005C2897 /* Assets.xcassets */,
 				D0CA79482B85A8B1005C2897 /* SimpleAudioPlayer.entitlements */,
 				D0CA79452B85A8B1005C2897 /* Preview Content */,
@@ -139,8 +148,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D001F38A2B8849ED00000785 /* AudioUtils.swift in Sources */,
 				D0CA79422B85A8B0005C2897 /* ContentView.swift in Sources */,
+				D00D65EA2B85D02900A2C2FD /* PreferencesView.swift in Sources */,
 				D0CA79402B85A8B0005C2897 /* SimpleAudioPlayerApp.swift in Sources */,
+				D0486A622B86D54B007E6CF7 /* AudioPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,6 +289,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleAudioPlayer/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Simple Audio Player";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -302,6 +315,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleAudioPlayer/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Simple Audio Player";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
