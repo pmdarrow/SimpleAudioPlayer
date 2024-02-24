@@ -2,7 +2,7 @@
 
 Simple Audio Player is a minimalistic audio player application built with SwiftUI for macOS. 
 
-![App screenshot](/screenshot.png?raw=true)
+<img src="/screenshot.png?raw=true" alt="App screenshot" width="539">
 
 ## Why
 
