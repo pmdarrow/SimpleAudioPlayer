@@ -2,6 +2,8 @@
 
 Simple Audio Player is a minimalistic audio player application built with SwiftUI for macOS. 
 
+![App screenshot](/screenshot.png?raw=true)
+
 ## Why
 
 I wanted a super lightweight open source audio player for local audio files that could run on a severely resource constrained machine. It needed to support selecting the output device and crossfading. Nothing really fit the bill so I built one myself.
