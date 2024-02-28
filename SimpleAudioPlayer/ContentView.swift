@@ -35,6 +35,11 @@ struct ContentView: View {
                             }
                     }
                 }
+                .contentShape(Rectangle())
+                .onDoubleClick {
+                    print("Double click detected on \(url)")
+                    play(url)
+                }
             }
 
             VStack {
