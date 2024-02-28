@@ -9,25 +9,14 @@ extension AVAudioFile {
     }
 }
 
-extension AVAudioPlayerNode {
-    var currentPositon: TimeInterval {
-        if let lastRenderTime, let playerTime = playerTime(forNodeTime: lastRenderTime) {
-            let currentPlayPosition = Double(playerTime.sampleTime) / playerTime.sampleRate
-            // currentPlayPosition is the current play position in seconds
-            return currentPlayPosition
-        }
-        return 0
-    }
-}
-
 class AudioPlayer: ObservableObject {
     private var audioEngine: AVAudioEngine
     private var audioPlayerNode: AVAudioPlayerNode
     private var audioFile: AVAudioFile?
-    private var isLocalFile: Bool = true
     private var updatePositionTimer: Timer?
+    private var seekBaseTime: TimeInterval = 0
 
-    @Published var songDuration: TimeInterval = 100
+    @Published var songDuration: TimeInterval = 0
     @Published var currentPosition: TimeInterval = 0
 
     public var outputDeviceID: AudioDeviceID {
@@ -41,14 +30,14 @@ class AudioPlayer: ObservableObject {
         }
     }
 
-    init() {
+    public init() {
         audioEngine = AVAudioEngine()
         audioPlayerNode = AVAudioPlayerNode()
         audioEngine.attach(audioPlayerNode)
         setOutputDevice(deviceID: outputDeviceID)
     }
 
-    func setOutputDevice(deviceID: AudioDeviceID) {
+    public func setOutputDevice(deviceID: AudioDeviceID) {
         // Attempt to access the Audio Unit of the engine's output node.
         // The audioUnit property is optional, hence the use of guard let to safely unwrap.
         guard let outputNodeAudioUnit = audioEngine.outputNode.audioUnit else {
@@ -73,8 +62,7 @@ class AudioPlayer: ObservableObject {
         }
     }
 
-    func loadFile(url: URL) {
-        isLocalFile = url.isFileURL
+    public func loadFile(url: URL) {
         do {
             audioFile = try AVAudioFile(forReading: url)
         } catch {
@@ -86,38 +74,98 @@ class AudioPlayer: ObservableObject {
         audioEngine.connect(audioPlayerNode, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
     }
 
-    func play() {
-        guard let audioFile, audioEngine.isRunning == true else {
-            do {
-                try audioEngine.start()
-                play()
-            } catch {
-                print("Error starting audio engine: \(error)")
-            }
+    private func updateCurrentPosition() {
+        guard let audioFile else { return }
+
+        let sampleRate = audioFile.processingFormat.sampleRate
+        let nodeTime: AVAudioTime? = audioPlayerNode.lastRenderTime
+        let playerTime: AVAudioTime? = audioPlayerNode.playerTime(forNodeTime: nodeTime!)
+
+        if let playerTime {
+            let currentFrame = playerTime.sampleTime
+            let currentRelativePositionInSeconds = Double(currentFrame) / sampleRate
+            currentPosition = seekBaseTime + currentRelativePositionInSeconds
+        }
+    }
+
+    private func playbackCompletionCallback(callbackType: AVAudioPlayerNodeCompletionCallbackType) {
+        print("Playback completion callback")
+        switch callbackType {
+        case .dataConsumed:
+            print("Data consumed")
+        case .dataRendered:
+            print("Data rendered")
+        case .dataPlayedBack:
+            print("Data played back")
+        @unknown default:
+            print("Unknown completion callback type")
+        }
+        print("Current position \(currentPosition), song duration \(songDuration)")
+    }
+
+    public func play(url: URL?) {
+        // Resume playback of existing song
+        guard let url else {
+            audioPlayerNode.play()
             return
         }
 
-        audioPlayerNode.stop()
-        audioPlayerNode.scheduleFile(audioFile, at: nil) {
-            print("Completion callback!")
-        }
-        audioPlayerNode.play()
-        currentPosition = audioPlayerNode.currentPositon
-        updatePositionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            // Update the currentPositon with the actual playback position from AVAudioPlayerNode
-            guard let strongSelf = self else { return }
-            strongSelf.currentPosition = strongSelf.audioPlayerNode.currentPositon
-        }
-    }
-
-    func play(url: URL) {
+        // Play a new song
         loadFile(url: url)
-        play()
+        seekBaseTime = 0
+
+        do {
+            try audioEngine.start()
+        } catch {
+            print("Error starting audio engine: \(error)")
+            return
+        }
+        guard let audioFile, audioEngine.isRunning == true else {
+            print("Audio engine not started, or audio file missing.")
+            return
+        }
+
+        audioPlayerNode.scheduleFile(audioFile, at: nil, completionCallbackType: .dataPlayedBack, completionHandler: playbackCompletionCallback)
+        audioPlayerNode.play()
+        updateCurrentPosition()
+
+        // Update the observable playback position every second
+        updatePositionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.updateCurrentPosition()
+        }
     }
 
-    func pause() {
+    public func pause() {
         audioPlayerNode.pause()
-        updatePositionTimer?.invalidate()
-        updatePositionTimer = nil
+    }
+
+    public func seek(to: TimeInterval) {
+        guard let audioFile else { return }
+
+        let sampleRate = audioFile.processingFormat.sampleRate
+
+        // Calculate the starting frame by multiplying the desired time in seconds by the sample rate.
+        // This determines the frame in the audio file where playback will begin.
+        let startingFrame = AVAudioFramePosition(to * sampleRate)
+
+        // Calculate the number of frames to play. This is the difference between the total length of the audio file
+        // and the starting frame. It ensures playback continues from the desired start point to the end of the file.
+        let frameCount = AVAudioFrameCount(audioFile.length - startingFrame)
+
+        audioPlayerNode.stop() // Stop if it was playing
+
+        // Schedule the playback of a segment of the audio file. This is where the "seeking" happens.
+        // - `audioFile`: The audio file to play.
+        // - `startingFrame`: The frame at which to start playback, calculated based on the desired seek time.
+        // - `frameCount`: The total number of frames to play from the starting frame, effectively determining
+        //   the duration of the playback segment.
+        // - `at: nil`: Specifies when the playback should start. Passing nil means playback starts immediately.
+        // - Completion handler: An optional closure that is called when the playback of the segment finishes.
+        audioPlayerNode.scheduleSegment(audioFile, startingFrame: startingFrame, frameCount: frameCount, at: nil, completionCallbackType: .dataPlayedBack, completionHandler: playbackCompletionCallback)
+
+        seekBaseTime = to // Update the base time with the seek position
+
+        audioPlayerNode.play() // Resume playback
     }
 }

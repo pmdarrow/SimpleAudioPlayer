@@ -14,6 +14,7 @@
 		D0CA79422B85A8B0005C2897 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CA79412B85A8B0005C2897 /* ContentView.swift */; };
 		D0CA79442B85A8B1005C2897 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0CA79432B85A8B1005C2897 /* Assets.xcassets */; };
 		D0CA79472B85A8B1005C2897 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0CA79462B85A8B1005C2897 /* Preview Assets.xcassets */; };
+		D0E05CFB2B89A7E500088336 /* DoubleClickModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E05CFA2B89A7E500088336 /* DoubleClickModifier.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		D0CA79432B85A8B1005C2897 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0CA79462B85A8B1005C2897 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D0CA79482B85A8B1005C2897 /* SimpleAudioPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SimpleAudioPlayer.entitlements; sourceTree = "<group>"; };
+		D0E05CFA2B89A7E500088336 /* DoubleClickModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleClickModifier.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				D001F3892B8849ED00000785 /* AudioUtils.swift */,
 				D0CA79412B85A8B0005C2897 /* ContentView.swift */,
 				D00D65E92B85D02900A2C2FD /* PreferencesView.swift */,
+				D0E05CFA2B89A7E500088336 /* DoubleClickModifier.swift */,
 				D0CA79432B85A8B1005C2897 /* Assets.xcassets */,
 				D0CA79482B85A8B1005C2897 /* SimpleAudioPlayer.entitlements */,
 				D0CA79452B85A8B1005C2897 /* Preview Content */,
@@ -150,6 +153,7 @@
 			files = (
 				D001F38A2B8849ED00000785 /* AudioUtils.swift in Sources */,
 				D0CA79422B85A8B0005C2897 /* ContentView.swift in Sources */,
+				D0E05CFB2B89A7E500088336 /* DoubleClickModifier.swift in Sources */,
 				D00D65EA2B85D02900A2C2FD /* PreferencesView.swift in Sources */,
 				D0CA79402B85A8B0005C2897 /* SimpleAudioPlayerApp.swift in Sources */,
 				D0486A622B86D54B007E6CF7 /* AudioPlayer.swift in Sources */,

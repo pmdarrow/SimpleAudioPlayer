@@ -48,17 +48,17 @@ struct ContentView: View {
                         Button(action: addSong) {
                             Image(systemName: "plus")
                         }
-
                         Button(action: removeSelectedSong) {
                             Image(systemName: "minus")
                         }
                     }.padding(.trailing, 10)
 
                     Button(action: {
+                        print("Play/pause clicked, isPlaying: \(isPlaying)")
                         if isPlaying {
                             pause()
                         } else {
-                            playSelectedSong()
+                            play(nil)
                         }
                     }) {
                         Image(systemName: isPlaying ? "pause.fill" : "play.fill")
@@ -71,9 +71,8 @@ struct ContentView: View {
                             in: 0 ... audioPlayer.songDuration,
                             onEditingChanged: { editing in
                                 if !editing {
-                                    // Seek to the new position when the user finishes dragging the slider
-                                    // Implement seeking in your AudioPlayerViewModel
-                                    //                                audioPlayer.seek(to: viewModel.currentPlaybackPosition)
+                                    print("Seeking to \(audioPlayer.currentPosition)")
+                                    audioPlayer.seek(to: audioPlayer.currentPosition)
                                 }
                             }
                         )
@@ -95,8 +94,7 @@ struct ContentView: View {
         return String(format: "%d:%02d", minutes, seconds)
     }
 
-    func playSelectedSong() {
-        guard let url = selectedSong else { return }
+    func play(_ url: URL?) {
         audioPlayer.play(url: url)
         isPlaying = true
         songPlaying = url

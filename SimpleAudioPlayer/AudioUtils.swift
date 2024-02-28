@@ -2,7 +2,7 @@ import CoreAudio
 import Foundation
 
 public enum AudioUtils {
-    // Most functions below lifted from https://gist.github.com/rlxone/584467a63ac0ddf4d62fe1a983b42d0e
+    // Most functions below from https://gist.github.com/rlxone/584467a63ac0ddf4d62fe1a983b42d0e
 
     static func getOutputDevices() -> [(AudioDeviceID, String)] {
         var result: [AudioDeviceID: String] = [:]
