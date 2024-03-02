@@ -1,15 +1,16 @@
+import AudioKit
 import SwiftUI
 
 @main
 struct SimpleAudioPlayerApp: App {
-    @StateObject var audioPlayer = AudioPlayer()
+    var audioManager = AudioManager()
 
     var body: some Scene {
         WindowGroup {
-            ContentView().environmentObject(audioPlayer)
+            ContentView(audioManager)
         }
         Settings {
-            PreferencesView().environmentObject(audioPlayer)
+            PreferencesView(audioManager)
         }
     }
 }

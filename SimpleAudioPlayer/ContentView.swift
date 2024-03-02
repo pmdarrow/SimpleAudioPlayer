@@ -1,15 +1,13 @@
+import AudioKit
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @EnvironmentObject private var audioPlayer: AudioPlayer
+    @ObservedObject private var audioManager: AudioManager
+
     @State private var audioQueue: [URL] = []
     @State private var selectedSong: URL?
-    @State private var songPlaying: URL?
-    @State private var isPlaying: Bool = false
     @State private var isAnimating = false
-    @State private var playheadPosition = 0.0
-    @State private var isEditingPlayheadPosition = false
 
     let queueKey = "audioQueue"
 
@@ -22,7 +20,7 @@ struct ContentView: View {
 
                     Spacer()
 
-                    if songPlaying == url, isPlaying {
+                    if audioManager.songPlaying == url, audioManager.isPlaying {
                         Circle()
                             .frame(width: 10, height: 10)
                             .foregroundColor(.green)
@@ -38,7 +36,7 @@ struct ContentView: View {
                 .contentShape(Rectangle())
                 .onDoubleClick {
                     print("Double click detected on \(url)")
-                    play(url)
+                    audioManager.play(url)
                 }
             }
 
@@ -54,29 +52,30 @@ struct ContentView: View {
                     }.padding(.trailing, 10)
 
                     Button(action: {
-                        print("Play/pause clicked, isPlaying: \(isPlaying)")
-                        if isPlaying {
-                            pause()
+                        print("Play/pause clicked, isPlaying: \(audioManager.isPlaying)")
+                        if audioManager.isPlaying {
+                            audioManager.pause()
                         } else {
-                            play(nil)
+                            audioManager.play(nil)
                         }
                     }) {
-                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                        Image(systemName: audioManager.isPlaying ? "pause.fill" : "play.fill")
                     }
 
                     HStack {
-                        Text(formatTimeInterval(audioPlayer.currentPosition)).frame(width: 35, alignment: .trailing)
+                        Text(formatTimeInterval(audioManager.currentTime)).frame(width: 35, alignment: .trailing)
                         Slider(
-                            value: $audioPlayer.currentPosition,
-                            in: 0 ... audioPlayer.songDuration,
+                            value: $audioManager.currentTime,
+                            in: 0 ... audioManager.currentSongDuration,
                             onEditingChanged: { editing in
+                                print("Editing slider \(editing)")
                                 if !editing {
-                                    print("Seeking to \(audioPlayer.currentPosition)")
-                                    audioPlayer.seek(to: audioPlayer.currentPosition)
+                                    print("Seeking to \(audioManager.currentTime)")
+                                    audioManager.seek(audioManager.currentTime)
                                 }
                             }
                         )
-                        Text(formatTimeInterval(audioPlayer.songDuration)).frame(width: 35, alignment: .leading)
+                        Text(formatTimeInterval(audioManager.currentSongDuration)).frame(width: 35, alignment: .leading)
                     }
                 }
 
@@ -87,23 +86,15 @@ struct ContentView: View {
         }.preferredColorScheme(.dark).frame(minWidth: 300, idealWidth: 300, minHeight: 150, idealHeight: 150)
     }
 
+    init(_ audioManager: AudioManager) {
+        self.audioManager = audioManager
+    }
+
     func formatTimeInterval(_ interval: TimeInterval) -> String {
         let interval = round(interval)
         let minutes = Int(interval) / 60
         let seconds = Int(interval) % 60
         return String(format: "%d:%02d", minutes, seconds)
-    }
-
-    func play(_ url: URL?) {
-        audioPlayer.play(url: url)
-        isPlaying = true
-        songPlaying = url
-    }
-
-    func pause() {
-        audioPlayer.pause()
-        isPlaying = false
-        songPlaying = nil
     }
 
     func addSong() {
@@ -139,5 +130,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView().environmentObject(AudioPlayer())
+    ContentView(AudioManager())
 }

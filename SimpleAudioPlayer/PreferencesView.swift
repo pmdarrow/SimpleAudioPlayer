@@ -1,37 +1,33 @@
-import CoreAudio
+import AudioKit
 import SwiftUI
 
 struct PreferencesView: View {
-    @EnvironmentObject private var audioPlayer: AudioPlayer
-    @State private var outputDevices: [(AudioDeviceID, String)] = []
-    @State private var selectedDeviceID: AudioDeviceID = 0
+    private var audioManager: AudioManager
+    @State private var selectedDevice: Device
 
     var body: some View {
         VStack {
             Text("Select Audio Output Device")
                 .font(.headline)
 
-            Picker("Output Device", selection: $selectedDeviceID) {
-                ForEach(outputDevices, id: \.0) { device in
-                    Text(device.1).tag(device.0)
+            Picker("Output Device:", selection: $selectedDevice) {
+                ForEach(audioManager.outputDevices, id: \.self) { device in
+                    Text(device.name).tag(device as Device?)
                 }
             }
-            .pickerStyle(MenuPickerStyle())
-            .onAppear {
-                outputDevices = AudioUtils.getOutputDevices()
-                print("Available output devices: \(outputDevices)")
-                selectedDeviceID = audioPlayer.outputDeviceID
-            }
-
-            Button("Apply") {
-                audioPlayer.outputDeviceID = selectedDeviceID
-                print("Saved selected device ID: \(selectedDeviceID)")
+            .onChange(of: selectedDevice) {
+                audioManager.setDevice(device: selectedDevice)
             }
         }
         .padding()
     }
+
+    init(_ audioManager: AudioManager) {
+        self.audioManager = audioManager
+        selectedDevice = audioManager.currentDevice
+    }
 }
 
 #Preview {
-    PreferencesView().environmentObject(AudioPlayer())
+    PreferencesView(AudioManager())
 }
