@@ -8,6 +8,7 @@ struct ContentView: View {
     @State private var audioQueue: [URL] = []
     @State private var selectedSong: URL?
     @State private var isAnimating = false
+    @FocusState private var focused: Bool
 
     let queueKey = "audioQueue"
 
@@ -68,7 +69,6 @@ struct ContentView: View {
                             value: $audioManager.currentTime,
                             in: 0 ... audioManager.currentSongDuration,
                             onEditingChanged: { editing in
-                                print("Editing slider \(editing)")
                                 if !editing {
                                     print("Seeking to \(audioManager.currentTime)")
                                     audioManager.seek(audioManager.currentTime)
@@ -81,8 +81,22 @@ struct ContentView: View {
 
             }.padding([.bottom, .leading, .trailing]).padding(.top, 8)
         }
+        .focusable()
+        .focused($focused)
+        .onKeyPress(.space, phases: .down) { _ in
+            print("Space pressed")
+            DispatchQueue.main.async {
+                if audioManager.isPlaying {
+                    audioManager.pause()
+                } else {
+                    audioManager.play(nil)
+                }
+            }
+            return .handled
+        }
         .onAppear {
             loadQueue()
+            focused = true
         }.preferredColorScheme(.dark).frame(minWidth: 300, idealWidth: 300, minHeight: 150, idealHeight: 150)
     }
 

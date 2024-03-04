@@ -75,7 +75,6 @@ class AudioManager: ObservableObject {
     public func pause() {
         audioPlayer.pause()
         isPlaying = false
-        songPlaying = nil
         stopUpdatingCurrentTime()
     }
 
