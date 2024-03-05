@@ -59,7 +59,7 @@ class AudioManager: ObservableObject {
 
     public func play(_ song: Song?) {
         // Resume playback of existing song
-        if song == nil {
+        guard let song = song else {
             if songPlaying == nil {
                 print("Nothing to play or resume, aborting")
             } else {
@@ -73,7 +73,7 @@ class AudioManager: ObservableObject {
 
         // Otherwise, play a new song
         do {
-            try audioPlayer.load(url: song!.url)
+            try audioPlayer.load(url: song.url)
         } catch {
             print("Error loading file: \(error)")
         }
