@@ -1,12 +1,24 @@
 import AudioKit
 import Foundation
 
+struct Song: Identifiable, Hashable {
+    let id: UUID = .init()
+    let url: URL
+
+    var title: String {
+        url.lastPathComponent
+    }
+}
+
 class AudioManager: ObservableObject {
     private var audioEngine: AudioEngine
     private let audioPlayer: AudioPlayer
     private var updatePositionTimer: Timer?
+    private let queueKey = "audioQueue"
+    private let savedDeviceKey = "savedDeviceID"
 
-    @Published public var songPlaying: URL?
+    @Published public var queue: [Song] = []
+    @Published public var songPlaying: Song?
     @Published public var isPlaying: Bool = false
     @Published public var currentTime = TimeInterval(0)
 
@@ -28,6 +40,7 @@ class AudioManager: ObservableObject {
         audioEngine.output = audioPlayer
         audioPlayer.completionHandler = playbackCompletionHandler
         loadDevice()
+        loadQueue()
     }
 
     public func terminate() {
@@ -44,9 +57,9 @@ class AudioManager: ObservableObject {
         }
     }
 
-    public func play(_ url: URL?) {
+    public func play(_ song: Song?) {
         // Resume playback of existing song
-        if url == nil {
+        if song == nil {
             if songPlaying == nil {
                 print("Nothing to play or resume, aborting")
             } else {
@@ -60,7 +73,7 @@ class AudioManager: ObservableObject {
 
         // Otherwise, play a new song
         do {
-            try audioPlayer.load(url: url!)
+            try audioPlayer.load(url: song!.url)
         } catch {
             print("Error loading file: \(error)")
         }
@@ -74,7 +87,7 @@ class AudioManager: ObservableObject {
 
         audioPlayer.play()
         isPlaying = true
-        songPlaying = url
+        songPlaying = song
         startUpdatingCurrentTime()
     }
 
@@ -103,8 +116,22 @@ class AudioManager: ObservableObject {
         updatePositionTimer = nil
     }
 
+    public func setDevice(device: Device) {
+        UserDefaults.standard.set(device.deviceID, forKey: savedDeviceKey)
+        do {
+            print("Setting device to \(device)")
+            isPlaying = false
+            songPlaying = nil
+            audioEngine.stop()
+            audioPlayer.stop()
+            try audioEngine.setDevice(device)
+        } catch {
+            print("Error changing output device: \(error)")
+        }
+    }
+
     public func loadDevice() {
-        guard let deviceID = UserDefaults.standard.object(forKey: "savedDeviceID") as? DeviceID else {
+        guard let deviceID = UserDefaults.standard.object(forKey: savedDeviceKey) as? DeviceID else {
             print("No saved device found, using system default")
             return
         }
@@ -121,17 +148,29 @@ class AudioManager: ObservableObject {
         }
     }
 
-    public func setDevice(device: Device) {
-        UserDefaults.standard.set(device.deviceID, forKey: "savedDeviceID")
-        do {
-            print("Setting device to \(device)")
-            isPlaying = false
-            songPlaying = nil
-            audioEngine.stop()
-            audioPlayer.stop()
-            try audioEngine.setDevice(device)
-        } catch {
-            print("Error changing output device: \(error)")
+    public func loadQueue() {
+        if let urlStrings = UserDefaults.standard.stringArray(forKey: queueKey) {
+            queue = urlStrings.compactMap { urlString in
+                guard let url = URL(string: urlString) else { return nil }
+                return Song(url: url)
+            }
         }
+    }
+
+    public func saveQueue() {
+        let urlStrings = queue.map(\.url.absoluteString)
+        UserDefaults.standard.set(urlStrings, forKey: queueKey)
+    }
+
+    public func addSongs(_ urls: [URL]) {
+        let newSongs = urls.map { Song(url: $0) }
+        queue.append(contentsOf: newSongs)
+        saveQueue()
+    }
+
+    public func removeSong(_ song: Song) {
+        guard let index = queue.firstIndex(of: song) else { return }
+        queue.remove(at: index)
+        saveQueue()
     }
 }

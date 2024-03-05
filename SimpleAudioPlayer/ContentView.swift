@@ -5,23 +5,20 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @ObservedObject private var audioManager: AudioManager
 
-    @State private var audioQueue: [URL] = []
-    @State private var selectedSong: URL?
+    @State private var selectedSong: Song?
     @State private var isAnimating = false
     @FocusState private var focused: Bool
 
-    let queueKey = "audioQueue"
-
     var body: some View {
         VStack {
-            List(audioQueue, id: \.self, selection: $selectedSong) { url in
+            List(audioManager.queue, id: \.self, selection: $selectedSong) { song in
                 HStack {
-                    Text(url.lastPathComponent)
+                    Text(song.title)
                         .lineLimit(1)
 
                     Spacer()
 
-                    if audioManager.songPlaying == url, audioManager.isPlaying {
+                    if audioManager.songPlaying == song, audioManager.isPlaying {
                         Circle()
                             .frame(width: 10, height: 10)
                             .foregroundColor(.green)
@@ -36,8 +33,8 @@ struct ContentView: View {
                 }
                 .contentShape(Rectangle())
                 .onDoubleClick {
-                    print("Double click detected on \(url)")
-                    audioManager.play(url)
+                    print("Double click detected on \(song)")
+                    audioManager.play(song)
                 }
             }
 
@@ -95,7 +92,6 @@ struct ContentView: View {
             return .handled
         }
         .onAppear {
-            loadQueue()
             focused = true
         }.preferredColorScheme(.dark).frame(minWidth: 300, idealWidth: 300, minHeight: 150, idealHeight: 150)
     }
@@ -119,27 +115,13 @@ struct ContentView: View {
         panel.allowedContentTypes = [UTType.mp3, UTType.wav, UTType.mpeg4Audio]
 
         if panel.runModal() == .OK {
-            audioQueue.append(contentsOf: panel.urls)
-            saveQueue()
+            audioManager.addSongs(panel.urls)
         }
     }
 
     func removeSelectedSong() {
-        guard let url = selectedSong, let index = audioQueue.firstIndex(of: url) else { return }
-        audioQueue.remove(at: index)
-        selectedSong = audioQueue.isEmpty ? nil : audioQueue[min(index, audioQueue.count - 1)]
-        saveQueue()
-    }
-
-    func loadQueue() {
-        if let savedQueue = UserDefaults.standard.stringArray(forKey: queueKey) {
-            audioQueue = savedQueue.compactMap { URL(string: $0) }
-        }
-    }
-
-    func saveQueue() {
-        let stringArray = audioQueue.map(\.absoluteString)
-        UserDefaults.standard.set(stringArray, forKey: queueKey)
+        guard let selectedSong else { return }
+        audioManager.removeSong(selectedSong)
     }
 }
 
