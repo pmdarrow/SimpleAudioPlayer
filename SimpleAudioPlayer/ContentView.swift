@@ -11,31 +11,34 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            List(audioManager.queue, id: \.self, selection: $selectedSong) { song in
-                HStack {
-                    Text(song.title)
-                        .lineLimit(1)
+            List(selection: $selectedSong) {
+                ForEach(audioManager.queue, id: \.self) { song in
+                    HStack {
+                        Text(song.title)
+                            .lineLimit(1)
 
-                    Spacer()
+                        Spacer()
 
-                    if audioManager.songPlaying == song, audioManager.isPlaying {
-                        Circle()
-                            .frame(width: 10, height: 10)
-                            .foregroundColor(.green)
-                            .scaleEffect(isAnimating ? 1.0 : 1.2)
-                            .opacity(isAnimating ? 1.0 : 0.25)
-                            .onAppear {
-                                withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
-                                    isAnimating.toggle() // Trigger the animation when the view appears
+                        if audioManager.songPlaying == song, audioManager.isPlaying {
+                            Circle()
+                                .frame(width: 10, height: 10)
+                                .foregroundColor(.green)
+                                .scaleEffect(isAnimating ? 1.0 : 1.2)
+                                .opacity(isAnimating ? 1.0 : 0.25)
+                                .onAppear {
+                                    withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
+                                        isAnimating.toggle() // Trigger the animation when the view appears
+                                    }
                                 }
-                            }
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onDoubleClick {
+                        print("Double click detected on \(song)")
+                        audioManager.play(song)
                     }
                 }
-                .contentShape(Rectangle())
-                .onDoubleClick {
-                    print("Double click detected on \(song)")
-                    audioManager.play(song)
-                }
+                .onMove(perform: moveSong)
             }
 
             VStack {
@@ -122,6 +125,10 @@ struct ContentView: View {
     func removeSelectedSong() {
         guard let selectedSong else { return }
         audioManager.removeSong(selectedSong)
+    }
+
+    func moveSong(from source: IndexSet, to destination: Int) {
+        audioManager.queue.move(fromOffsets: source, toOffset: destination)
     }
 }
 

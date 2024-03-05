@@ -59,7 +59,7 @@ class AudioManager: ObservableObject {
 
     public func play(_ song: Song?) {
         // Resume playback of existing song
-        guard let song = song else {
+        guard let song else {
             if songPlaying == nil {
                 print("Nothing to play or resume, aborting")
             } else {
