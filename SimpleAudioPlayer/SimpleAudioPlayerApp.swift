@@ -13,4 +13,14 @@ struct SimpleAudioPlayerApp: App {
             PreferencesView(audioManager)
         }
     }
+
+    init() {
+        setupTerminationObserver()
+    }
+
+    func setupTerminationObserver() {
+        NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: nil) { _ in
+            audioManager.terminate()
+        }
+    }
 }

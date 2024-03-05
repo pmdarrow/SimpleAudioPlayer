@@ -30,6 +30,12 @@ class AudioManager: ObservableObject {
         loadDevice()
     }
 
+    public func terminate() {
+        print("Terminating")
+        audioPlayer.stop()
+        audioEngine.stop()
+    }
+
     private func playbackCompletionHandler() {
         DispatchQueue.main.async {
             self.songPlaying = nil
