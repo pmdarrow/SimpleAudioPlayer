@@ -115,6 +115,7 @@ class AudioManager: ObservableObject {
             }
         }
 
+        stopUpdatingCurrentTime()
         audioPlayer.play()
         isPlaying = true
         currentAudioPlayer = audioPlayer
@@ -175,7 +176,6 @@ class AudioManager: ObservableObject {
                 self.currentTime = currentAudioPlayer.currentTime
                 let remainingTime = self.currentSongDuration - self.currentTime
                 if remainingTime <= self.crossfadeDuration, let nextSong = self.getNextSong() {
-                    self.updatePositionTimer?.invalidate()
                     self.play(nextSong)
                 }
             }
