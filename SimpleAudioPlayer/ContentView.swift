@@ -19,7 +19,7 @@ struct ContentView: View {
 
                         Spacer()
 
-                        if audioManager.songPlaying == song, audioManager.isPlaying {
+                        if audioManager.currentSong == song, audioManager.isPlaying {
                             Circle()
                                 .frame(width: 10, height: 10)
                                 .foregroundColor(.green)
@@ -57,7 +57,7 @@ struct ContentView: View {
                         if audioManager.isPlaying {
                             audioManager.pause()
                         } else {
-                            audioManager.play(nil)
+                            audioManager.resume()
                         }
                     }) {
                         Image(systemName: audioManager.isPlaying ? "pause.fill" : "play.fill")
@@ -89,7 +89,7 @@ struct ContentView: View {
                 if audioManager.isPlaying {
                     audioManager.pause()
                 } else {
-                    audioManager.play(nil)
+                    audioManager.resume()
                 }
             }
             return .handled
