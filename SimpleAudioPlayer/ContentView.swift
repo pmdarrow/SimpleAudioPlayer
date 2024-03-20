@@ -56,6 +56,8 @@ struct ContentView: View {
                         print("Play/pause clicked, isPlaying: \(audioManager.isPlaying)")
                         if audioManager.isPlaying {
                             audioManager.pause()
+                        } else if audioManager.currentSong == nil, let firstSong = audioManager.firstSong {
+                            audioManager.play(firstSong)
                         } else {
                             audioManager.resume()
                         }

@@ -41,6 +41,30 @@ class AudioManager: ObservableObject {
         currentAudioPlayer?.duration ?? 0
     }
 
+    public var firstSong: Song? {
+        queue.first
+    }
+
+    public var nextSong: Song? {
+        guard let currentSong else {
+            print("Can't determine next song - no song currently playing.")
+            return nil
+        }
+
+        guard let currentIndex = queue.firstIndex(of: currentSong) else {
+            print("Can't determine next song - couldn't find current song in queue.")
+            return nil
+        }
+
+        let nextIndex = currentIndex + 1
+        guard queue.indices.contains(nextIndex) else {
+            // There is no next song in the queue
+            return nil
+        }
+
+        return queue[nextIndex]
+    }
+
     public init() {
         mixer = Mixer()
         audioEngine = AudioEngine()
@@ -65,26 +89,6 @@ class AudioManager: ObservableObject {
                 self.stopUpdatingCurrentTime()
             }
         }
-    }
-
-    func getNextSong() -> Song? {
-        guard let currentSong else {
-            print("Can't determine next song - no song currently playing.")
-            return nil
-        }
-
-        guard let currentIndex = queue.firstIndex(of: currentSong) else {
-            print("Can't determine next song - couldn't find current song in queue.")
-            return nil
-        }
-
-        let nextIndex = currentIndex + 1
-        guard queue.indices.contains(nextIndex) else {
-            // There is no next song in the queue
-            return nil
-        }
-
-        return queue[nextIndex]
     }
 
     public func play(_ song: Song) {
@@ -175,7 +179,7 @@ class AudioManager: ObservableObject {
             DispatchQueue.main.async {
                 self.currentTime = currentAudioPlayer.currentTime
                 let remainingTime = self.currentSongDuration - self.currentTime
-                if remainingTime <= self.crossfadeDuration, let nextSong = self.getNextSong() {
+                if remainingTime <= self.crossfadeDuration, let nextSong = self.nextSong {
                     self.play(nextSong)
                 }
             }
